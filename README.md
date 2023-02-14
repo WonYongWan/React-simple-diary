@@ -2,6 +2,8 @@
 [페이지 라우팅 0 - React SPA & CSR](#페이지-라우팅-0---react-spa--csr)<br/>
 [페이지 라우팅 1 - React Router 기본](#페이지-라우팅-1---react-router-기본)<br/>
 [페이지 라우팅 2 - React Router 응용](#페이지-라우팅-2---react-router-응용)<br/>
+[프로젝트 기초 공사 1](#프로젝트-기초-공사-1)<br/>
+[프로젝트 기초 공사 2](#프로젝트-기초-공사-2)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -202,3 +204,131 @@ const Edit = () => {
 
 export default Edit;
 ```
+
+# 프로젝트 기초 공사 1
+react에서 이미지를 불러오는 방법
+
+```js
+import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import New from './pages/New';
+import Edit from './pages/Edit';
+import Diary from './pages/Diary';
+
+function App() {
+  // process.env.PUBLIC_URL이 작동하지 않을 경우
+  const env = process.env;
+  env.PUBLIC_URL = env.PUBLIC_URL || "";
+
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <h2>App.js</h2>
+        {/* public 폴더를 가리킨다. */}
+        <img src={process.env.PUBLIC_URL + `/assets/emotion1.png`}></img>
+        <img src={process.env.PUBLIC_URL + `/assets/emotion2.png`}></img>
+        <img src={process.env.PUBLIC_URL + `/assets/emotion3.png`}></img>
+        <img src={process.env.PUBLIC_URL + `/assets/emotion4.png`}></img>
+        <img src={process.env.PUBLIC_URL + `/assets/emotion5.png`}></img>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/new" element={<New/>} />
+          <Route path="/edit" element={<Edit/>} />
+          <Route path="/diary/:id" element={<Diary/>} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+보통 공통 컴포넌트 생성할때는 components폴더 안에다가 만든다.
+
+```js
+// MyButton.js
+const MyButton = ({text, type, onClick}) => {
+  // 매개변수로 받아온 type가 positive, negative 중 하나면 type를 그대로 반환하고 아니라면 default를 반환한다.
+  const btnType = ['positive', 'negative'].includes(type) ? type : 'default'; 
+
+  // 배열에 넣고 join으로 클래스를 뿌린다. 괜찮은 방법이다. 써먹어봐야 한다.
+  return (
+    <button className={["MyButton", `MyButton_${btnType}`].join(" ")} onClick={onClick}>
+      {text}
+    </button>
+  )
+}
+
+MyButton.defaultProps = {
+  type: "default"
+}
+
+export default MyButton;
+```
+
+```js
+// MyHeader.js
+const MyHeader = ({headText, leftChild, rightChild}) => {
+  // headText, leftChild, rightChild를 props로 전달받아 반환한다.
+  return (
+    <header>
+      <div className="head_btn_left">
+        {leftChild}
+      </div>
+      <div className="head_text">
+        {headText}
+      </div>
+      <div className="head_btn_right">
+        {rightChild}
+      </div>
+    </header>
+  )
+}
+
+export default MyHeader;
+```
+
+```js
+// App.js
+import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import New from './pages/New';
+import Edit from './pages/Edit';
+import Diary from './pages/Diary';
+
+// COMPONENTS
+import MyButton from './components/MyButton';
+import MyHeader from './components/MyHeader';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <MyHeader 
+          headText={"App"} 
+          leftChild={<MyButton text={'왼쪽 버튼'} onClick={() => alert('왼쪽 버튼')} />} 
+          rightChild={<MyButton text={'오른쪽 버튼'} onClick={() => alert('오른쪽 버튼')} />} 
+        />
+        <h2>App.js</h2>
+        <MyButton text={'버튼'} onClick={() => alert("버튼 클릭")} type={'positive'} />
+        <MyButton text={'버튼'} onClick={() => alert("버튼 클릭")} type={'negative'} />
+        <MyButton text={'버튼'} onClick={() => alert("버튼 클릭")} />
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/new" element={<New/>} />
+          <Route path="/edit" element={<Edit/>} />
+          <Route path="/diary/:id" element={<Diary/>} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+# 프로젝트 기초 공사 2
+
