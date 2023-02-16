@@ -4,6 +4,7 @@
 [페이지 라우팅 2 - React Router 응용](#페이지-라우팅-2---react-router-응용)<br/>
 [프로젝트 기초 공사 1](#프로젝트-기초-공사-1)<br/>
 [프로젝트 기초 공사 2](#프로젝트-기초-공사-2)<br/>
+[페이지 구현 - 홈 (/)](#페이지-구현---홈)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -425,4 +426,64 @@ function App() {
 }
 
 export default App;
+```
+
+# 페이지 구현 - 홈 (/)
+
+```js
+import { useContext, useEffect, useState } from "react";
+import { DiaryStateContext } from "../App";
+import MyHeader from '../components/MyHeader';
+import MyButton from '../components/MyButton';
+import DiaryList from '../components/DiaryList';
+
+const Home = () => {
+  const diaryList = useContext(DiaryStateContext);
+
+  const [data, setData] = useState([]);
+
+  const [curDate, setCurDate] = useState(new Date());
+  // 해당 년도와 월를 가져온다. getMonth는 0월부터 시작하므로 + 1을 해줘야 한다.
+  const headText =  `${curDate.getFullYear()}년 ${curDate.getMonth() + 1}`;
+
+  // 처음 렌더링 되었을때 curDate로 가져온 현재 날짜를 기준으로 그 달의 첫날부터 마지막 날까지 구한다.  
+  useEffect(() => {
+    if(diaryList.length >= 1) {
+      const firstDay = new Date(
+        curDate.getFullYear(),
+        curDate.getMonth(),
+        1
+      ).getTime();
+  
+      const lastDay = new Date(
+        curDate.getFullYear(),
+        curDate.getMonth() + 1,
+        0
+      ).getTime();
+  
+      setData(diaryList.filter((it) => firstDay <= it.date && it.date <= lastDay));
+    }
+  }, [diaryList, curDate]);
+
+  const increaseMonth = () => {
+    setCurDate(new Date(curDate.getFullYear(), curDate.getMonth() + 1, curDate.getDate()));
+  }
+
+  const decreaseMonth = () => {
+    setCurDate(new Date(curDate.getFullYear(), curDate.getMonth() - 1, curDate.getDate()));
+  }
+
+  return (
+    <div>
+      <MyHeader 
+        headText={headText} 
+        leftChild={<MyButton text={"<"} onClick={decreaseMonth} />}
+        rightChild={<MyButton text={">"} onClick={increaseMonth} />}
+      />
+      <DiaryList diaryList={data}/>
+    </div>
+  );
+}
+
+export default Home;
 ```
