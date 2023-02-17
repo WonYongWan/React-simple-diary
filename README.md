@@ -5,6 +5,7 @@
 [프로젝트 기초 공사 1](#프로젝트-기초-공사-1)<br/>
 [프로젝트 기초 공사 2](#프로젝트-기초-공사-2)<br/>
 [페이지 구현 - 홈 (/)](#페이지-구현---홈)<br/>
+[페이지 구현 - 일기 쓰기 (/new)](#페이지-구현---일기-쓰기-new)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -431,6 +432,7 @@ export default App;
 # 페이지 구현 - 홈 (/)
 
 ```js
+// Home화면의 전체 틀 구현
 import { useContext, useEffect, useState } from "react";
 import { DiaryStateContext } from "../App";
 import MyHeader from '../components/MyHeader';
@@ -473,6 +475,7 @@ const Home = () => {
     setCurDate(new Date(curDate.getFullYear(), curDate.getMonth() - 1, curDate.getDate()));
   }
 
+  // Header의 다음달 및 이전달로 이동하는 기능
   return (
     <div>
       <MyHeader 
@@ -487,3 +490,132 @@ const Home = () => {
 
 export default Home;
 ```
+
+```js
+// Home 화면의 다이어리 필터기능 및 리스트페이지를 구현하는 컴포넌트
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import DiaryItem from "./DiaryItem";
+import MyButton from './MyButton';
+
+const sortOptionList = [
+  {value:"lastest", name:"최신순"},
+  {value:"oldest", name:"오래된 순"}
+]
+
+const filterOptionList = [
+  {value:"all", name:"전부 다"},
+  {value:"good", name:"좋은 감정만"},
+  {value:"bad", name:"안좋은 감정만"},
+]
+
+// select와 option들을 구현하는 함수
+const ControlMenu = ({value, onChange, optionList}) => {
+  return (
+    <select className="ControlMenu" value={value} onChange={(e) => onChange(e.target.value)}>
+      {optionList.map((it, idx) => <option key={idx} value={it.value}>{it.name}</option>)}
+    </select>
+  )
+}
+
+
+const DiaryList = ({diaryList}) => {
+  const navigate = useNavigate();
+  const [sortType, setSortType] = useState('lastest');
+  const [filter, setFilter] = useState('all');
+
+  const getProcessedDiaryList = () => {
+
+    const filterCallBack = (item) => {
+      if(filter === 'good') {
+        return parseInt(item.emotion) <= 3;
+      } else {
+        return parseInt(item.emotion) > 3;
+      }
+    }
+
+    const compare = (a, b) => {
+      if(sortType === 'lastest') {
+        return parseInt(b.date) - parseInt(a.date);
+      } else {
+        return parseInt(a.date) - parseInt(b.date);
+      }
+    }
+
+    const copyList = JSON.parse(JSON.stringify(diaryList));
+
+    const filteredList = filter === 'all' ? copyList : copyList.filter((it) => filterCallBack(it));
+
+    const sortedList = filteredList.sort(compare);
+    return sortedList;
+  }
+
+  return (
+    <div className="DiaryList">
+      <div className="manu_wrapper">
+        <div className="left_col">
+          <ControlMenu value={sortType} onChange={setSortType} optionList={sortOptionList} />
+          <ControlMenu value={filter} onChange={setFilter} optionList={filterOptionList} />
+        </div>
+        <div className="right_col">
+          <MyButton type={'positive'} text={'새 일기쓰기'} onClick={() => navigate('/new')} />
+        </div>
+      </div>
+      {getProcessedDiaryList().map((it) => (<DiaryItem key={it.id} {...it} />))}
+    </div>
+  )
+}
+
+DiaryList.defaultProps = {
+  diaryList: []
+}
+
+export default DiaryList;
+```
+
+```js
+// Home 화면의 List 아이템들을 구현하는 컴포넌트
+import { useNavigate } from "react-router-dom";
+import MyButton from "./MyButton";
+
+const DiaryItem = ({id, emotion, content, date}) => {
+  const navigate = useNavigate();
+
+  const env = process.env;
+  env.PUBLIC_URL = env.PUBLIC_URL || "";
+
+  // toLocaleDateString는 사람이 인식할 수 있는 날짜로 변환해준다.
+  const strDate = new Date(parseInt(date)).toLocaleDateString();
+
+  const goDetail = () => {
+    navigate(`/diary/${id}`);
+  }
+
+  const goEdit = () => {
+    navigate(`/edit/${id}`);
+  }
+
+  return (
+    <div className="DiaryItem">
+      <div onClick={goDetail} className={["emotion_img_wrapper", `emotion_img_wrapper_${emotion}`].join(" ")}>
+        <img src={process.env.PUBLIC_URL + `assets/emotion${emotion}.png`} />
+      </div>
+      <div onClick={goDetail} className="info_wrapper">
+        <div className="diary_date">{strDate}</div>
+        <div className="diary_content_preview">{content.slice(0, 25)}</div>
+      </div>
+      <div onClick={goEdit} className="btn_wrapper">
+        <MyButton text={"수정하기"}/>
+      </div>
+    </div>
+  )
+}
+
+export default DiaryItem;
+```
+
+# 페이지 구현 - 일기 쓰기 (/new)
+
+- 공통으로 묶이는 컴포넌트는 독립 시키는 것이 좋다.
+-  navigate(-1)은 1페이지 뒤로가기가 가능하다.
+- DiaryEditor.js, EmotionItem.js 참조
