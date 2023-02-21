@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DiaryDispatchContext } from '../App'
 import MyHeader from './MyHeader';
@@ -41,14 +41,14 @@ const getStringDate = (date) => {
   return date.toISOString().slice(0, 10);
 }
 
-const DiaryEditor = () => {
+const DiaryEditor = ({isEdit, originData}) => {
 
   const contentRef = useRef();
   const [content, setContent] = useState("");
   const [emotion, setEmotion] = useState(3);
   const [date, setDate] = useState(getStringDate(new Date()));
 
-  const {onCreate} = useContext(DiaryDispatchContext);
+  const {onCreate, onEdit} = useContext(DiaryDispatchContext);
 
   // 감정을 클릭했을때 감정 값을 가져오는 함수
   const handleClickEmote = (emotion) => {
@@ -60,17 +60,32 @@ const DiaryEditor = () => {
   const handleSubmit = () => {
     if(content.length < 1) {
       contentRef.current.focus();
-      return
+      return;
     } 
-    onCreate(date, content, emotion);
+
+    if(window.confirm(isEdit ? "일기를 수정하시겠습니까?" : "새로운 일기를 작성하시겠습니까?")) {
+      if(!isEdit) {
+        onCreate(date, content, emotion);
+      } else {
+        onEdit(originData.id ,date, content, emotion)
+      }
+    }
     // 작성중인 페이지를 뒤로가기를 해서 못 오도록 막기 위해 옵션으로 { replace: true }를 넣었다.
-    navigate('/', { replace: true })
+    navigate('/', { replace: true });
   }
+
+  useEffect(() => {
+    if(isEdit) {
+      setDate(getStringDate(new Date(parseInt(originData.date))));
+      setEmotion(originData.emotion);
+      setContent(originData.content);
+    }
+  }, [isEdit, originData]);
 
   return (
     <div className='DiaryEditor'>
       {/* navigate(-1)은 1페이지 뒤로가기가 가능 */}
-      <MyHeader headText={"새 일기쓰기"} leftChild={<MyButton onClick={() => navigate(-1)} text={"< 뒤로가기"} />}/>
+      <MyHeader headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} leftChild={<MyButton onClick={() => navigate(-1)} text={"< 뒤로가기"} />}/>
       <div>
         <section>
           <h4>오늘은 언제인가요?</h4>

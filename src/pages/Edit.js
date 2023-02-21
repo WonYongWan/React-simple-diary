@@ -1,22 +1,35 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { DiaryStateContext } from "../App";
+import DiaryEditor from "../components/DiaryEditor";
 
 const Edit = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const id = searchParams.get('id');
-  console.log(id)
-  
-  const mode = searchParams.get('mode');
-  console.log(mode)
+  const [originData, setOriginData] = useState();
+  const navigate = useNavigate();
+  // path variable의 정보를 확인할 수 있다.
+  const { id } = useParams();
+  // 바로 부모가 아닌 조상의 데이터도 받을 수 있다.
+  const diaryList = useContext(DiaryStateContext);
+
+  useEffect(() => {
+    if(diaryList.length >= 1) {
+      const targetDiary = diaryList.find((it) => parseInt(it.id) === parseInt(id));
+
+      // 아이템이 없을 경우 홈으로 되롤리기 위한 로직
+      if(targetDiary) {
+        setOriginData(targetDiary);
+      } else {
+        //  replace: true는 뒤로가기를 방지한다.
+        navigate('/', { replace: true });
+      }
+      console.log(targetDiary)
+    }
+  }, [id, diaryList]);
 
   return (
     <div>
-      <h1>Edit</h1>
-      <p>이곳은 Edit 입니다.</p>
-      <button onClick={() => setSearchParams({who:'yong'})}>QS 변경</button>
-      <button onClick={() => {navigate("/home")}}>HOME로 이동</button>
-      <button onClick={() => {navigate(-1)}}>뒤로가기</button>
+      {originData && <DiaryEditor isEdit={true} originData={originData} />}
     </div>
   )
 }

@@ -6,6 +6,7 @@
 [프로젝트 기초 공사 2](#프로젝트-기초-공사-2)<br/>
 [페이지 구현 - 홈 (/)](#페이지-구현---홈)<br/>
 [페이지 구현 - 일기 쓰기 (/new)](#페이지-구현---일기-쓰기-new)<br/>
+[페이지 구현 - 일기 수정 (/edit)](#페이지-구현---일기-수정-edit)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -617,5 +618,91 @@ export default DiaryItem;
 # 페이지 구현 - 일기 쓰기 (/new)
 
 - 공통으로 묶이는 컴포넌트는 독립 시키는 것이 좋다.
--  navigate(-1)은 1페이지 뒤로가기가 가능하다.
+- navigate(-1)은 1페이지 뒤로가기가 가능하다.
 - DiaryEditor.js, EmotionItem.js 참조
+
+# 페이지 구현 - 일기 수정 (/edit)
+
+```js
+// App.js
+// path variable 방식
+<Route path="/edit/:id" element={<Edit/>} />
+```
+
+```js
+// Edit.js
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { DiaryStateContext } from "../App";
+import DiaryEditor from "../components/DiaryEditor";
+
+const Edit = () => {
+
+  const [originData, setOriginData] = useState();
+  const navigate = useNavigate();
+  // path variable의 정보를 확인할 수 있다.
+  const { id } = useParams();
+  // 바로 부모가 아닌 조상의 데이터도 받을 수 있다.
+  const diaryList = useContext(DiaryStateContext);
+
+  useEffect(() => {
+    if(diaryList.length >= 1) {
+      const targetDiary = diaryList.find((it) => parseInt(it.id) === parseInt(id));
+
+      // 아이템이 없을 경우 홈으로 되롤리기 위한 로직
+      if(targetDiary) {
+        setOriginData(targetDiary);
+      } else {
+        //  replace: true는 뒤로가기를 방지한다.
+        navigate('/', { replace: true });
+      }
+      console.log(targetDiary)
+    }
+  }, [id, diaryList]);
+
+  // originData가 true일 경우 true와 originData를 prop으로 전달한다.
+  return (
+    <div>
+      {originData && <DiaryEditor isEdit={true} originData={originData} />}
+    </div>
+  )
+}
+
+export default Edit;
+```
+
+```js
+// DiaryEditor.js
+import { useContext, useEffect, useRef, useState } from 'react';
+import MyHeader from './MyHeader';
+import MyButton from './MyButton';
+
+const DiaryEditor = ({isEdit, originData}) => {
+  // isEdit이 true일 경우 수정 false일 경우 생성
+  if(window.confirm(isEdit ? "일기를 수정하시겠습니까?" : "새로운 일기를 작성하시겠습니까?")) {
+    if(!isEdit) {
+      onCreate(date, content, emotion);
+    } else {
+      onEdit(originData.id ,date, content, emotion)
+    }
+  }
+
+  // 수정 페이지에 수정할 데이터 전달
+  useEffect(() => {
+    if(isEdit) {
+      setDate(getStringDate(new Date(parseInt(originData.date))));
+      setEmotion(originData.emotion);
+      setContent(originData.content);
+    }
+  }, [isEdit, originData]);
+
+  return (
+    <div className='DiaryEditor'>
+      {/* isEdit가 true일 경우 일기 수정하기 false일 경우 새 일기쓰기 */}
+      <MyHeader headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} leftChild={<MyButton onClick={() => navigate(-1)} text={"< 뒤로가기"} />}/>
+    </div>
+  )
+}
+
+export default DiaryEditor;
+```
