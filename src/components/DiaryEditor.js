@@ -4,42 +4,8 @@ import { DiaryDispatchContext } from '../App'
 import MyHeader from './MyHeader';
 import MyButton from './MyButton';
 import EmotionItem from './EmotionItem';
-
-// new 페이지와 edit 페이지가 동일하기 때문에 둘 다 사용할 수 있도록 컴포넌트를 독립 시킨다.
-
-const emotionList = [
-  {
-    emotion_id: 1,
-    emotion_img: process.env.PUBLIC_URL + `/assets/emotion1.png`,
-    emotion_descript: '완전 좋음'
-  },
-  {
-    emotion_id: 2,
-    emotion_img: process.env.PUBLIC_URL + `/assets/emotion2.png`,
-    emotion_descript: '좋음'
-  },
-  {
-    emotion_id: 3,
-    emotion_img: process.env.PUBLIC_URL + `/assets/emotion3.png`,
-    emotion_descript: '그럭저럭'
-  },
-  {
-    emotion_id: 4,
-    emotion_img: process.env.PUBLIC_URL + `/assets/emotion4.png`,
-    emotion_descript: '나쁨'
-  },
-  {
-    emotion_id: 5,
-    emotion_img: process.env.PUBLIC_URL + `/assets/emotion5.png`,
-    emotion_descript: '끔찍함'
-  },
-]
-
-// new Date를 사람이 알아볼 수 있는 날짜로 변경
-const getStringDate = (date) => {
-  // toISOString만 하면 2023-02-17T11:15:59.162Z이 나온다. slice를 통해 2023-02-17까지만 출력될 수 있도록 조정했다.
-  return date.toISOString().slice(0, 10);
-}
+import { getStringDate } from '../util/date';
+import { emotionList } from '../util/emotion';
 
 const DiaryEditor = ({isEdit, originData}) => {
 

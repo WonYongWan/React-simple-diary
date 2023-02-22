@@ -7,6 +7,8 @@
 [페이지 구현 - 홈 (/)](#페이지-구현---홈)<br/>
 [페이지 구현 - 일기 쓰기 (/new)](#페이지-구현---일기-쓰기-new)<br/>
 [페이지 구현 - 일기 수정 (/edit)](#페이지-구현---일기-수정-edit)<br/>
+[페이지 구현 - 일기 상세 (/diary)](#페이지-구현---일기-상세-diary)<br/>
+[(서브 챕터) 흔히 발생하는 버그 수정 하기](#서브-챕터-흔히-발생하는-버그-수정-하기)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -705,4 +707,107 @@ const DiaryEditor = ({isEdit, originData}) => {
 }
 
 export default DiaryEditor;
+```
+
+# 페이지 구현 - 일기 상세 (/diary)
+
+공통으로 사용되는 데이터는 util폴더를 만들어 따로 저장했다.
+
+```js
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { DiaryStateContext } from "../App";
+import MyButton from "../components/MyButton";
+import MyHeader from "../components/MyHeader";
+import { getStringDate } from '../util/date';
+import { emotionList } from '../util/emotion';
+
+const Diary = () => {
+  
+  const {id} = useParams();
+  const diaryList = useContext(DiaryStateContext);
+  const navigate = useNavigate();
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    if(diaryList.length >= 1) {
+      const targetDiary = diaryList.find((it) => parseInt(it.id) === parseInt(id));
+
+      if(targetDiary) {
+        setData(targetDiary);
+      } else {
+        alert("없는 일기입니다.");
+        navigate('/', { replace: true });
+      }
+    }
+  }, [id, diaryList]);
+
+  if(!data) {
+    return <div className="DiaryPage">로딩중입니다...</div>
+  } else {
+
+    const curEmotionData = emotionList.find((it) => parseInt(it.emotion_id) === parseInt(data.emotion));
+    console.log(curEmotionData)
+
+    return (
+      <div className="DiaryPage">
+        <MyHeader 
+          headText={`${getStringDate(new Date(data.date))} 기록`} 
+          leftChild={<MyButton text={'<뒤로가기'} onClick={() => navigate(-1)}  />} 
+          rightChild={<MyButton text={'수정하기'} onClick={() => navigate(`/edit/${data.id}`)} />}
+        />
+        <article>
+          <section>
+            <h4>오늘의 감정</h4>
+            <div className={["diary_img_wrapper", `diary_img_wrapper_${data.emotion}`].join(" ")}>
+              <img src={curEmotionData.emotion_img} />
+              <div className="emotion_descript">{curEmotionData.emotion_descript}</div>
+            </div>
+          </section>
+          <section>
+            <h4>오늘의 일기</h4>
+            <div className="diary_content_wrapper">
+              <p>{data.content}</p>
+            </div>
+          </section>
+        </article>
+      </div>
+    ) 
+  }
+}
+
+export default Diary;
+```
+
+# (서브 챕터) 흔히 발생하는 버그 수정 하기
+
+1. Warning: Encountered two children with the same key
+  - 더미 데이터를 사용할때 useRef를 제대로 설정하지 않으면 생기는 에러 ex) 더미 id: 1 ~ 5까지 존재. 하지만 useRef로 초기값 0으로 설정 후 1씩 증가. 중복 키 발생
+
+```js
+// App.js
+// 더미 데이터의 id가 5번까지 존재함
+const dataId = useRef(0); // before
+
+const dataId = useRef(6); // after
+```
+
+2. 오타 잘 체크할 것! (TS배우는걸 추천)
+3. 달의 마지막날 시간 체크할 것! // 아직 0의 의미를 모르겠음
+
+```js
+// Home.js
+// before는 0시0분0초를 가리킨다.
+const lastDay = new Date(
+  curDate.getFullYear(),
+  curDate.getMonth() + 1,
+  0
+).getTime(); // before
+
+// after는 23시59분59초를 가리킨다.
+const lastDay = new Date(
+  curDate.getFullYear(),
+  curDate.getMonth() + 1,
+  0, 23, 59, 59
+).getTime(); // after
 ```
