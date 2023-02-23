@@ -1,3 +1,5 @@
+import React from 'react';
+
 const EmotionItem = ({emotion_id, emotion_img, emotion_descript, onClick, isSelected}) => {
   return (
     // isSelected ? `emotionItem_on_${emotion_id}` : `emotionItem_off`].join(" ")을 통해 탭 메뉴 처럼 만들 수 있다.
@@ -8,4 +10,4 @@ const EmotionItem = ({emotion_id, emotion_img, emotion_descript, onClick, isSele
   )
 }
 
-export default EmotionItem;
+export default React.memo(EmotionItem);

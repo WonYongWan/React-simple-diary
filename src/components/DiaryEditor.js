@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DiaryDispatchContext } from '../App'
 import MyHeader from './MyHeader';
@@ -17,9 +17,9 @@ const DiaryEditor = ({isEdit, originData,}) => {
   const {onCreate, onEdit, onRemove} = useContext(DiaryDispatchContext);
 
   // 감정을 클릭했을때 감정 값을 가져오는 함수
-  const handleClickEmote = (emotion) => {
+  const handleClickEmote = useCallback((emotion) => {
     setEmotion(emotion);
-  }
+  }, []);
 
   const navigate = useNavigate();
   // 작성완료 클릭 기능 함수

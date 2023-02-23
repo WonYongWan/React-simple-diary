@@ -10,6 +10,7 @@
 [페이지 구현 - 일기 상세 (/diary)](#페이지-구현---일기-상세-diary)<br/>
 [(서브 챕터) 흔히 발생하는 버그 수정 하기](#서브-챕터-흔히-발생하는-버그-수정-하기)<br/>
 [LocalStorage를 일기 데이터베이스로 사용하기](#localstorage를-일기-데이터베이스로-사용하기)<br/>
+[프로젝트 최적화](#프로젝트-최적화)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -866,3 +867,54 @@ useEffect(() => {
   }
 }, []);
 ```
+
+# 프로젝트 최적화
+프로젝트를 최적화 할때
+- 직접 코드 한줄씩 확인하는 정적방법
+- 도구를 사용하여 확인하는 동적방법
+
+react의 도구를 사용하는 동적방법은 React developer tool을 활용하면 된다.
+
+월을 변경할때 오래된순, 전부다 핕터와 새일기쓰기 버튼이 리렌더링 된다. 
+
+```js
+// DiaryList.js
+
+// onChange매개변수 주목
+// useState는 기본적으로 useCallback되어 나온다고 생각하면 된다.
+// 만약 useState가 아닌 함수를 만들어 전달하게 되면 React.memo는 정상적으로 동작하지 않고 리렌더링 된다. 내가 만든 핸들러 함수는 id를 보장받지 못함
+const ControlMenu = React.memo(({value, onChange, optionList}) => {
+  return (
+    <select className="ControlMenu" value={value} onChange={(e) => onChange(e.target.value)}>
+      {optionList.map((it, idx) => <option key={idx} value={it.value}>{it.name}</option>)}
+    </select>
+  )
+});
+```
+
+필터를 적용할때 일기 아이템들이 리렌더링 된다.
+
+```js
+// DiaryItem.js
+
+export default React.memo(DiaryItem);
+```
+
+일기를 수정할때 텍스트를 변경하는데 그 외의 컴포넌트들이 리렌더링 된다.
+
+```js
+// EmotionItem.js
+// !! useState나 useCallback로 묶지 않은 함수는 기본적으로 리렌더링 된다.
+
+export default React.memo(EmotionItem);
+```
+
+```js
+// DiaryEditor.js
+// 감정을 클릭했을때 감정 값을 가져오는 함수
+const handleClickEmote = useCallback((emotion) => {
+  setEmotion(emotion);
+}, []);
+```
+
+### 중요! 함수호출문에 마우스를 오버하고 Ctrl + click를 하면 함수의 선언부로 이동한다.
