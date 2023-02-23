@@ -8,10 +8,14 @@ const Home = () => {
   const diaryList = useContext(DiaryStateContext);
 
   const [data, setData] = useState([]);
-
   const [curDate, setCurDate] = useState(new Date());
   // 해당 년도와 월를 가져온다. getMonth는 0월부터 시작하므로 + 1을 해줘야 한다.
   const headText =  `${curDate.getFullYear()}년 ${curDate.getMonth() + 1}`;
+
+  useEffect(() => {
+    const titleElement = document.getElementsByTagName('title')[0];
+    titleElement.innerHTML = `감정 일기장`;
+  }, []);
 
   useEffect(() => {
     if(diaryList.length >= 1) {

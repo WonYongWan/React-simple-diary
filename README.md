@@ -11,6 +11,7 @@
 [(서브 챕터) 흔히 발생하는 버그 수정 하기](#서브-챕터-흔히-발생하는-버그-수정-하기)<br/>
 [LocalStorage를 일기 데이터베이스로 사용하기](#localstorage를-일기-데이터베이스로-사용하기)<br/>
 [프로젝트 최적화](#프로젝트-최적화)<br/>
+[배포 준비 & 프로젝트 빌드하기](#배포-준비--프로젝트-빌드하기)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -918,3 +919,67 @@ const handleClickEmote = useCallback((emotion) => {
 ```
 
 ### 중요! 함수호출문에 마우스를 오버하고 Ctrl + click를 하면 함수의 선언부로 이동한다.
+
+# 배포 준비 & 프로젝트 빌드하기
+
+```js
+// Diary.js
+
+// 각 페이지 title의 텍스트를 바꿀 수 있다.
+useEffect(() => {
+  const titleElement = document.getElementsByTagName('title')[0];
+  titleElement.innerHTML = `감정 일기장 - ${id}번 일기`;
+}, []);
+```
+
+배포를 하기 위해 코드의 용량을 압축하는 것을 빌드라고 한다.
+
+package.json의 "scripts"에서 build를 확인할 수 있다.
+
+```
+npm run build
+```
+
+build에 성공하면 build 폴더가 생성된다.
+
+npm install -g serve를 설치하고
+
+serve -s build명령어를 입력하면 로컬에서 배포할 수 있다.
+
+```
+npm install -g serve
+serve -s build
+```
+```
+serve -s build 권한 설정 에러가 발생할 수도 있다. Windows PowerShell에 접속하여 
+get-ExecutionPolicy로 권한 확인
+
+(권한 상태값)
+Restricted : default설정값으로, 스크립트 파일을 실행할 수 없습니다.
+AllSigned : 신뢰할 수 있는(서명된) 스크립트 파일만 실행할 수 있습니다.
+RemoteSigned : 로컬에서 본인이 생성한 스크립트와, 신뢰할 수 있는(서명된) 스크립트 파일 실행할 수 있습니다.
+Unrestricted : 모든 스크립트 실행가능
+ByPass : 경고/차단 없이 모든 것을 실행가능하도록함
+Undefined : 권한을 설정하지 않겠음
+
+Set-ExecutionPolicy RemoteSigned -> y 를 통해 권한을 변경하면 된다.
+```
+
+빌드를 다시 하려면 npm run build를 다시 입력하면 된다.
+
+```js
+// App.js
+useEffect(() => {
+  const localData = localStorage.getItem('diary');
+  if(localData) {
+    const diaryList = JSON.parse(localData).sort(
+      (a, b) => parseInt(b.id) - parseInt(a.id)
+    );
+    // diaryList.length가 빈배열 즉 0이 아닐때만 수행할 수 있도록 로직을 변경했다. 안그러면 에러 발생
+    if(diaryList.length >= 1) {
+      dataId.current = parseInt(diaryList[0].id) + 1;
+      dispatch({type: "INIT", data: diaryList});
+    }
+  }
+}, []);
+```

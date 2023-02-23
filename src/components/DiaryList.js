@@ -14,10 +14,9 @@ const filterOptionList = [
   {value:"bad", name:"안좋은 감정만"},
 ]
 
+// useState는 기본적으로 useCallback되어 나온다고 생각하면 된다.
+// 만약 useState가 아닌 함수를 만들어 전달하게 되면 React.memo는 정상적으로 동작하지 않고 리렌더링 된다. 내가 만든 핸들러 함수는 id를 보장받지 못함
 const ControlMenu = React.memo(({value, onChange, optionList}) => {
-  useEffect(() => {
-    console.log('asddsa')
-  })
   return (
     <select className="ControlMenu" value={value} onChange={(e) => onChange(e.target.value)}>
       {optionList.map((it, idx) => <option key={idx} value={it.value}>{it.name}</option>)}
