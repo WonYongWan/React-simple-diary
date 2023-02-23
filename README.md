@@ -9,6 +9,7 @@
 [페이지 구현 - 일기 수정 (/edit)](#페이지-구현---일기-수정-edit)<br/>
 [페이지 구현 - 일기 상세 (/diary)](#페이지-구현---일기-상세-diary)<br/>
 [(서브 챕터) 흔히 발생하는 버그 수정 하기](#서브-챕터-흔히-발생하는-버그-수정-하기)<br/>
+[LocalStorage를 일기 데이터베이스로 사용하기](#localstorage를-일기-데이터베이스로-사용하기)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -810,4 +811,58 @@ const lastDay = new Date(
   curDate.getMonth() + 1,
   0, 23, 59, 59
 ).getTime(); // after
+```
+
+# LocalStorage를 일기 데이터베이스로 사용하기
+
+- sessitonStorage
+  - 웹브라우저가 종료 되면 데이터가 사라진다.
+- localStorage를
+  - 웹브라우저를 닫고 열어도 데이터가 남아있다. 컴퓨터를 껐다 켜고 남아있음 브라우저 캐시 또는 로컬 저장 데이터를 지우면 사라진다.
+
+```js
+// LocalStorage에 데이터 저장하는 방법
+useEffect(() => {
+  // key: value 형태로 저장
+  // 한번 LocalStorage에 저장된 값은 고의적으로 LocalStorage를 비우지 않는 이상 지워지지 않는다.
+  // localStorage.setItem('key', 10);를 저장하고 코드를 지워도 'key', 10 데이터는 남아 있는다.
+  // 개발자 도구 Application에서 우클릭 Delete로 데이터를 지울 수 있다.
+  localStorage.setItem('item1', 10);
+  localStorage.setItem('item2', "20");
+  localStorage.setItem('item3', JSON.stringify({value:30}));
+}, []);
+```
+
+```js
+// LocalStorage의 데이터를 가져오는 방법
+useEffect(() => {
+  // ! LocalStorage에 들어가는 값들은 전부 문자열로 바뀌어서 들어간다.
+  const item1 = localStorage.getItem('item1');
+  const item2 = localStorage.getItem('item2');
+  // 온전한 객체 데이터를 가져오려면 JSON.parse()을 사용해야 한다.
+  const item3 = JSON.parse(localStorage.getItem('item3'));
+
+  // 객체로 묶어주면 콘솔에서 보기 편함
+  console.log({item1, item2, item3});
+}, []);
+```
+
+```js
+// App.js
+// 브라우저를 새로고침해도 일기가 삭제되지 않고 LocalStorage로부터 데이터를 받아와 나오는 로직
+
+useEffect(() => {
+  // LocalStorage로부터 데이터 받아오기
+  const localData = localStorage.getItem('diary');
+  // localData가 true일 경우 아이템의 id값을 내림차순으로 정렬
+  if(localData) {
+    const diaryList = JSON.parse(localData).sort(
+      (a, b) => parseInt(b.id) - parseInt(a.id)
+    );
+    // dataId는 존재하는 가장 큰 id값의 +1을 하여 일기를 새로 작성해도 id가 겹치지 않는다.
+    dataId.current = parseInt(diaryList[0].id) + 1;
+
+    dispatch({type: "INIT", data: diaryList});
+  }
+}, []);
 ```

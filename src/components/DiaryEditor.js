@@ -7,14 +7,14 @@ import EmotionItem from './EmotionItem';
 import { getStringDate } from '../util/date';
 import { emotionList } from '../util/emotion';
 
-const DiaryEditor = ({isEdit, originData}) => {
+const DiaryEditor = ({isEdit, originData,}) => {
 
   const contentRef = useRef();
   const [content, setContent] = useState("");
   const [emotion, setEmotion] = useState(3);
   const [date, setDate] = useState(getStringDate(new Date()));
 
-  const {onCreate, onEdit} = useContext(DiaryDispatchContext);
+  const {onCreate, onEdit, onRemove} = useContext(DiaryDispatchContext);
 
   // 감정을 클릭했을때 감정 값을 가져오는 함수
   const handleClickEmote = (emotion) => {
@@ -40,6 +40,13 @@ const DiaryEditor = ({isEdit, originData}) => {
     navigate('/', { replace: true });
   }
 
+  const handleRemove = () => {
+    if(window.confirm("정말 삭제하시겠습니까?")) {
+      onRemove(originData.id);
+      navigate('/', {replace: true});
+    }
+  }
+
   useEffect(() => {
     if(isEdit) {
       setDate(getStringDate(new Date(parseInt(originData.date))));
@@ -51,7 +58,15 @@ const DiaryEditor = ({isEdit, originData}) => {
   return (
     <div className='DiaryEditor'>
       {/* navigate(-1)은 1페이지 뒤로가기가 가능 */}
-      <MyHeader headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} leftChild={<MyButton onClick={() => navigate(-1)} text={"< 뒤로가기"} />}/>
+      <MyHeader 
+        headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} 
+        leftChild={<MyButton onClick={() => navigate(-1)} text={"< 뒤로가기"} />}
+        rightChild={
+          isEdit && (
+            <MyButton onClick={handleRemove} text={"삭제하기"} type={"negative"} />
+          )
+        }
+      />
       <div>
         <section>
           <h4>오늘은 언제인가요?</h4>
