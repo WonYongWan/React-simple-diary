@@ -12,6 +12,7 @@
 [LocalStorage를 일기 데이터베이스로 사용하기](#localstorage를-일기-데이터베이스로-사용하기)<br/>
 [프로젝트 최적화](#프로젝트-최적화)<br/>
 [배포 준비 & 프로젝트 빌드하기](#배포-준비--프로젝트-빌드하기)<br/>
+[Firebase로 프로젝트 배포하기](#firebase로-프로젝트-배포하기)<br/>
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -982,4 +983,58 @@ useEffect(() => {
     }
   }
 }, []);
+```
+
+# Firebase로 프로젝트 배포하기
+배포하는 방법에는 여러가지가 있다.
+
+대표적으로 서버를 구축하는 방법이 있는데 진입장벽이 높다.
+
+```
+Firebase사용법
+
+<!-- 프로젝트 시작 -->
+Firebase페이지 접속 -> 시작하기 접속 -> 프로젝트 추가 -> 프로젝트 이름 작성(한 프로젝트 안에 여러개의 웹애플리케이션이 들어갈 수 있음을 유의하여 작성) -> 애널리틱스 체크 여부 -> 생성됨
+
+참고로 구글 애널리틱스는 사이트에 방문하는 사람들의 트래픽을 제공하는 도구.
+
+<!-- firebase연결 -->
+빌드 탭(Hosting) 접속 -> 시작하기 접속 -> cmd(관리자 권한) 실행 -> npm install -g firebase-tools -> vscode 터미널에 firebase login(안될 경우 cmd실행해서 프로젝트 경로로 이동 후 입력) or vscode cmd사용 -> vscode 터미널에 firebase init
+
+<!-- firebase init 후 체크 화면 (space = select, up + down button) -->
+Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys 체크
+Use an existing project 체크(이미 프로젝트가 만들어졌다면)
+프로젝트 선택 후 enter
+build 입력
+싱글페이지 사용 여부 체크
+깃헙 사용여부 체크
+
+<!-- 생성완료 후 -->
+고급(다른사이트 추가) 접속 -> 도메인 설정 =>
+```
+
+```js
+// firebase.json접속 후 설정한 도메인으로 site 기입
+{
+  "hosting": {
+    "site": "wyw-react-project",
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
+```
+
+```
+터미널
+npm run build -> firebase deploy -> 배포완료
 ```
