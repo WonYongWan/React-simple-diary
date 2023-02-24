@@ -13,6 +13,8 @@
 [프로젝트 최적화](#프로젝트-최적화)<br/>
 [배포 준비 & 프로젝트 빌드하기](#배포-준비--프로젝트-빌드하기)<br/>
 [Firebase로 프로젝트 배포하기](#firebase로-프로젝트-배포하기)<br/>
+[Firebase로 프로젝트 배포하기](#firebase로-프로젝트-배포하기)<br/>
+[Open Graph 설정하기](#open-graph-설정하기)
 <br/>
 
 # 페이지 라우팅 0 - React SPA & CSR
@@ -1038,3 +1040,19 @@ build 입력
 터미널
 npm run build -> firebase deploy -> 배포완료
 ```
+
+# Open Graph 설정하기
+
+```html
+<!-- 카카오톡에 보여질 링크 정보 -->
+<!-- Open Graph -->
+<meta property="og:image" content="%PUBLIC_URL%/thumbnail.png"/>
+<meta property="og:site_name" content="감정 일기장"/>
+<meta property="og:description" content="나만의 작은 감정 일기장"/>
+```
+
+카카오톡에 서비스에서 Open Graph의 데이터들을 링크가 공유될때마다 가져오는 것이 아니라 한번 가져오면 캐시처럼 보관 해놓고 계속 사용한다.
+
+[카카오톡 개발](https://developers.kakao.com/)
+
+카카오톡 개발 접속 후 -> 도구 -> 초기화 도구 -> OG(Open Graph)캐시 // 나는 안나옴 -> 프로젝트 링크 입력 후 초기화 클릭
